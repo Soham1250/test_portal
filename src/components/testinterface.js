@@ -103,7 +103,7 @@ function TestInterface() {
             return markedForReview[index] ? "marked-answered" : "answered";
         } else if (markedForReview[index]) {
             return "marked-unanswered";
-        } else if (index < currentQuestionIndex) {
+        } else if (index === currentQuestionIndex) {
             return "visited";
         } else {
             return "unvisited";
