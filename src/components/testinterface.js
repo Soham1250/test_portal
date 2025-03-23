@@ -15,6 +15,9 @@ function TestInterface() {
     const [selectedAnswers, setSelectedAnswers] = useState({});
     const [showGrid, setShowGrid] = useState(false);
     const [markedForReview, setMarkedForReview] = useState({});
+    const [showResults, setShowResults] = useState(false);
+    const [score, setScore] = useState(0);
+    const [questionStatuses, setQuestionStatuses] = useState([]);
 
     const startTest = async () => {
         setTestStarted(true);
@@ -107,6 +110,27 @@ function TestInterface() {
         }
     };
 
+    const calculateResults = () => {
+        let correctAnswers = 0;
+        const statuses = questions.map((question, index) => {
+            const selectedAnswer = selectedAnswers[index];
+            const isCorrect = selectedAnswer === question.correctAnswer;
+
+            if (selectedAnswer) {
+                if (markedForReview[index]) {
+                    return isCorrect ? "marked-correct" : "marked-incorrect";
+                }
+                if (isCorrect) correctAnswers++;
+                return isCorrect ? "correct" : "incorrect";
+            }
+            return "not-answered";
+        });
+
+        setScore(correctAnswers);
+        setQuestionStatuses(statuses);
+        setShowResults(true);
+    };
+
     const current = questions[currentQuestionIndex];
 
     return (
@@ -129,6 +153,19 @@ function TestInterface() {
                         </button>
                     ) : loading ? (
                         <p className="test-loading-text">Loading...</p>
+                    ) : showResults ? (
+                        <div className="test-results">
+                            <h2>Your Score: {score} / {questions.length}</h2>
+                            <div className="results-details">
+                                {questions.map((question, index) => (
+                                    <div key={index} className={`result-question ${questionStatuses[index]}`}>
+                                        <h3>Question {index + 1}</h3>
+                                        <div>{renderContent(question.Question)}</div>
+                                        <p>Status: {questionStatuses[index]}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
                     ) : questions.length > 0 && current ? (
                         <>
                             <h2 className="test-header">Question {currentQuestionIndex + 1}</h2>
@@ -155,47 +192,48 @@ function TestInterface() {
                                 <button className="test-nav-button" onClick={handleMarkForReview}>
                                     {markedForReview[currentQuestionIndex] ? "Unmark Review" : "Mark for Review"}
                                 </button>
+                                <button className="test-nav-button" onClick={calculateResults}>Submit Test</button>
                             </div>
                         </>
                     ) : (
                         <p>No questions available</p>
                     )}
                 </div>
-            </div>
 
-            {showGrid && (
-                <div className="question-drawer">
-                    <div className="question-grid">
-                        {questions.map((_, index) => (
-                            <div
-                                key={index}
-                                className={`question-tile ${getQuestionStatus(index)}`}
-                                onClick={() => handleQuestionClick(index)}
-                            >
-                                {index + 1}
+                {showGrid && (
+                    <div className="question-drawer">
+                        <div className="question-grid">
+                            {questions.map((_, index) => (
+                                <div
+                                    key={index}
+                                    className={`question-tile ${getQuestionStatus(index)}`}
+                                    onClick={() => handleQuestionClick(index)} // Updated onClick event
+                                >
+                                    {index + 1}
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="question-status-legend">
+                            <div className="legend-item">
+                                <span className="legend-color unvisited"></span> Not Attempted
                             </div>
-                        ))}
-                    </div>
-
-                    <div className="question-status-legend">
-                        <div className="legend-item">
-                            <span className="legend-color unvisited"></span> Not Attempted
-                        </div>
-                        <div className="legend-item">
-                            <span className="legend-color visited"></span> Visited
-                        </div>
-                        <div className="legend-item">
-                            <span className="legend-color answered"></span> Answered
-                        </div>
-                        <div className="legend-item">
-                            <span className="legend-color marked-unanswered"></span> Marked for Review (Unanswered)
-                        </div>
-                        <div className="legend-item">
-                            <span className="legend-color marked-answered"></span> Marked for Review (Answered)
+                            <div className="legend-item">
+                                <span className="legend-color visited"></span> Visited
+                            </div>
+                            <div className="legend-item">
+                                <span className="legend-color answered"></span> Answered
+                            </div>
+                            <div className="legend-item">
+                                <span className="legend-color marked-unanswered"></span> Marked for Review (Unanswered)
+                            </div>
+                            <div className="legend-item">
+                                <span className="legend-color marked-answered"></span> Marked for Review (Answered)
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )}
+            </div>
         </div>
     );
 }

@@ -10,7 +10,7 @@
 
 .test-content {
   display: flex;
-  align-items: center;
+  align-items: flex-start; /* Align items to the top */
   justify-content: center;
   max-width: 100%;
   min-width: 100%;
@@ -71,21 +71,21 @@
 /* Mobile Optimization */
 @media (max-width: 900px) {
   .test-content {
-    flex-direction: column;
-    align-items: center;
+    flex-direction: row; /* Stack content horizontally */
+    flex-wrap: wrap; /* Allow wrapping */
   }
+  .question-drawer {
+    width: 100%; /* Full width on mobile */
+    margin-left: 0; /* Remove left margin */
+    border-left: none; /* Remove left border */
+    border-top: 2px solid #ccc; /* Add top border */
+  }
+}
 
-  .question-grid {
-    width: 100%;
-    max-width: 600px;
-    grid-template-columns: repeat(5, 1fr);
-  }
-
-  .test-container {
-    width: 100%;
-    max-width: 600px;
-    margin-left: 0;
-  }
+.test-container {
+  width: 100%;
+  max-width: 600px;
+  margin-left: 0;
 }
 
 /* Header */
@@ -209,7 +209,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 50px;       /* 🔥 fixed width */
+  width: 50px; /* 🔥 fixed width */
   height: 50px; /* Ensure uniform height */
   font-size: 16px;
   border-radius: 5px;
@@ -218,7 +218,7 @@
 }
 
 .question-drawer {
-  position: flex;
+  position: relative; /* Changed from flex to relative */
   width: 320px;
   height: 100%;
   background: white;
@@ -229,8 +229,8 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  margin-left: 20px; /* Added margin to separate from test content */
 }
-
 
 .question-tile.unvisited {
   background: #ccc;
@@ -294,4 +294,41 @@
 
 .legend-color.marked-answered {
   background: #ffa500;
+}
+
+/* Results */
+.test-results {
+  text-align: center;
+}
+
+.results-details {
+  margin-top: 20px;
+}
+
+.result-question {
+  margin-bottom: 20px;
+  padding: 10px;
+  border-radius: 10px;
+  border: 2px solid #ddd;
+  background: #f8f9fd;
+}
+
+.result-question.correct {
+  border-color: #0f0;
+}
+
+.result-question.incorrect {
+  border-color: #f00;
+}
+
+.result-question.marked-correct {
+  border-color: #ffa500;
+}
+
+.result-question.marked-incorrect {
+  border-color: #800080;
+}
+
+.result-question.not-answered {
+  border-color: #ccc;
 }
