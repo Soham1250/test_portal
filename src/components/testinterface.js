@@ -388,6 +388,28 @@ function TestInterface() {
         });
     }, [questions, selectedAnswers, markedForReview, recordTime]);
 
+    const calculateOverallStats = () => {
+        const totalQuestions = questions.length;
+        const correctAnswers = questionStatuses.filter(status => status === "correct").length;
+        const overallAccuracy = ((correctAnswers / totalQuestions) * 100).toFixed(2);
+
+        const totalTimeSpent = totalTimeTaken;
+
+        // Include 0% confidence for incorrect answers
+        const allConfidenceValues = questions.map((_, idx) =>
+            questionStatuses[idx] === "correct" ? (confidenceMap[idx] || 0) : 0
+        );
+        const averageConfidence = (
+            allConfidenceValues.reduce((sum, val) => sum + val, 0) / totalQuestions
+        ).toFixed(2);
+
+        const averageTimePerQuestion = (
+            Object.values(timeSpentPerQuestion).reduce((sum, val) => sum + val, 0) / totalQuestions || 0
+        ).toFixed(2);
+
+        return { overallAccuracy, totalTimeSpent, averageConfidence, averageTimePerQuestion };
+    };
+
     const handleSubmit = () => calculateResults();
 
     const formatTime = (sec) => {
@@ -431,6 +453,42 @@ function TestInterface() {
                         <h2>Test Completed</h2>
                         <p><strong>Score:</strong> {score} / {questions.length}</p>
                         <p><strong>Total Time Taken:</strong> {formatTime(totalTimeTaken)}</p>
+
+                        {/* Stats Box */}
+                        <div style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            gap: "10px",
+                            marginBottom: "20px",
+                        }}>
+                            {Object.entries(calculateOverallStats()).map(([key, value], idx) => {
+                                const icons = {
+                                    overallAccuracy: "📊", // Emoji for accuracy
+                                    totalTimeSpent: "⏱️", // Emoji for time
+                                    averageConfidence: "📈", // Emoji for confidence
+                                    averageTimePerQuestion: "⏳", // Emoji for average time
+                                };
+                                return (
+                                    <div key={idx} style={{
+                                        flex: "1",
+                                        padding: "15px",
+                                        border: "1px solid #ddd",
+                                        borderRadius: "10px",
+                                        backgroundColor: "#f9f9f9",
+                                        textAlign: "center",
+                                        boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
+                                    }}>
+                                        <div style={{ fontSize: "24px", marginBottom: "10px" }}>{icons[key]}</div>
+                                        <h4 style={{ marginBottom: "10px" }}>
+                                            {key.replace(/([A-Z])/g, " $1").replace(/^./, str => str.toUpperCase())}
+                                        </h4>
+                                        <p style={{ fontSize: "18px", fontWeight: "bold" }}>
+                                            {key === "totalTimeSpent" ? formatTime(value) : value}
+                                        </p>
+                                    </div>
+                                );
+                            })}
+                        </div>
 
                         {/* Pie Chart Section */}
                         {chartData && (
@@ -505,7 +563,9 @@ function TestInterface() {
                                         </div>
                                         <div style={styles.responseRow}>
                                             <span style={styles.responseLabel}>Confidence:</span>
-                                            <span style={styles.responseValue}>{confidenceMap[idx] || "0"}%</span>
+                                            <span style={styles.responseValue}>
+                                                {questionStatuses[idx] === "correct" ? confidenceMap[idx] || "0" : "0"}%
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
