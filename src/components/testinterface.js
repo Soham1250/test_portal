@@ -574,6 +574,9 @@ function TestInterface() {
                     </div>
                 ) : current ? (
                     <>
+                        <div style={{ marginBottom: "10px", fontWeight: "bold", fontSize: "18px" }}>
+                            Question {currentQuestionIndex + 1} of {questions.length}
+                        </div>
                         <div style={styles.questionBox}>{renderContent(current.Question)}</div>
                         <div style={styles.optionsGrid}>
                             {["A", "B", "C", "D"].map((opt) => (
